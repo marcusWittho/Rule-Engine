@@ -1,0 +1,86 @@
+spring:
+  application:
+    name: rule-engine
+  profiles:
+    active: dev
+  config:
+    activate:
+      on-profile: dev
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: admin
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+    enabled: true
+
+  kafka:
+    bootstrap-servers: localhost:29092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all # Garante que o líder e as réplicas confirmem o recebimento
+      retries: 3 # Número de tentativas em caso de falha
+      linger-ms: 5 # Tempo de espera antes de enviar um lote de mensagens
+    consumer:
+      group-id: rule-engine
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enable-auto-commit: false # Desativa o commit automático (útil para controle manual)
+      max-poll-records: 500 # Máximo de registros por poll
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
+    enabled: false
+
+  kafka:
+    bootstrap-servers: ${DB_URL}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      acks: all # Garante que o líder e as réplicas confirmem o recebimento
+      retries: 3 # Número de tentativas em caso de falha
+      linger-ms: 5 # Tempo de espera antes de enviar um lote de mensagens
+    consumer:
+      group-id: rule-engine
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enable-auto-commit: false # Desativa o commit automático (útil para controle manual)
+      max-poll-records: 500 # Máximo de registros por poll
