@@ -1,0 +1,15 @@
+{
+  "rules": [
+    {
+      "name": "HighTemp",
+      "conditions": [
+        { "attribute": "temperature", "operator": "greater_than", "value": 30 },
+        { "attribute": "timestamp", "operator": "within_last_minutes", "value": 10 }
+      ],
+      "consequence": {
+        "type": "ALERT",
+        "message": "High temperature in last 10 minutes"
+      }
+    }
+  ]
+}
